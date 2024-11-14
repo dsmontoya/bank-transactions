@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  importer:
+    build:
+      context: ../
+      dockerfile: build/Dockerfile
+      args:
+          BUILD_TARGET: importer
+    # depends_on:
+    #   - db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: txs
+  transactions:
+    build:
+      context: ../
+      dockerfile: build/Dockerfile
+      args:
+          BUILD_TARGET: transactions
+    # depends_on:
+    #   - db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: txs
+    ports:
+      - "8080:8080"
+  transactions-sql-migrations:
+    build:
+      context: ../
+      dockerfile: build/sql-migrations.Dockerfile
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@transactionsdb:5432/txs
+      DATABASE_SCHEMA: transactions
+    depends_on:
+      - transactionsdb
+
+  transactionsdb:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: txs
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
