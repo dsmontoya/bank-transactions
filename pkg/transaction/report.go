@@ -1,5 +1,24 @@
 package transaction
 
+import (
+	"bytes"
+	"html/template"
+)
+
+const (
+	templateText = `
+Account Balance
+
+Total Balance: {{.TotalBalance}}
+{{range .MonthlyReports}}
+Month: {{.Month}}
+Number of transactions: {{.TransactionCount}}
+Average debit amount: {{.AverageDebit}}
+Average credit amount: {{.AverageCredit}}
+{{end}}
+`
+)
+
 type MonthlyReport struct {
 	Month            string  `json:"month"`
 	TransactionCount int     `json:"transaction_count"`
@@ -10,6 +29,27 @@ type MonthlyReport struct {
 type Report struct {
 	TotalBalance   float64
 	MonthlyReports []MonthlyReport
+}
+
+// Format generates a report in a human-readable format
+func (r *Report) Format() (string, error) {
+	totalBalance := r.TotalBalance
+
+	data := struct {
+		TotalBalance   float64
+		MonthlyReports []MonthlyReport
+	}{
+		TotalBalance:   totalBalance,
+		MonthlyReports: r.MonthlyReports,
+	}
+
+	var tpl bytes.Buffer
+	t := template.Must(template.New("report").Parse(templateText))
+	if err := t.Execute(&tpl, data); err != nil {
+		return "", err
+	}
+
+	return tpl.String(), nil
 }
 
 func GenerateReport(transactions []Transaction) Report {

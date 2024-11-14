@@ -12,7 +12,17 @@ type Notifier struct {
 	Mailer mail.Mailer
 }
 
-func (n *Notifier) Notify(ctx context.Context, transactions []Transaction) error {
-	_ = GenerateReport(transactions)
+func (n *Notifier) Notify(_ context.Context, transactions []Transaction) error {
+	report := GenerateReport(transactions)
+
+	body, err := report.Format()
+	if err != nil {
+		return err
+	}
+
+	if err := n.Mailer.Send("", "", body); err != nil {
+		n.Logger.Error("failed to send email", zap.Error(err))
+		return err
+	}
 	return nil
 }

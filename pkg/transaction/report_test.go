@@ -76,3 +76,38 @@ func TestGenerateReport(t *testing.T) {
 		})
 	}
 }
+func TestReport_Format(t *testing.T) {
+	transactions := []transaction.Transaction{
+		{Date: "2023/01/01", Amount: 100.0},
+		{Date: "2023/01/15", Amount: -50.0},
+		{Date: "2023/02/01", Amount: 200.0},
+		{Date: "2023/02/15", Amount: -100.0},
+	}
+
+	report := transaction.GenerateReport(transactions)
+
+	got, err := report.Format()
+	if err != nil {
+		t.Fatalf("Format() error = %v", err)
+	}
+
+	want := `
+Account Balance
+
+Total Balance: 150
+
+Month: 2023/01
+Number of transactions: 2
+Average debit amount: -50
+Average credit amount: 100
+
+Month: 2023/02
+Number of transactions: 2
+Average debit amount: -100
+Average credit amount: 200
+
+`
+	if got != want {
+		t.Errorf("Format() = %v, want %v", got, want)
+	}
+}
