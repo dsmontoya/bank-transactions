@@ -4,14 +4,19 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"log"
 	"os"
+
+	"go.uber.org/zap"
 )
 
 func main() {
+	logger, err := zap.NewProduction()
+	if err != nil {
+		panic(err)
+	}
 	file, err := os.Open("/assets/transactions.csv") //TODO: move to a flag
 	if err != nil {
-		log.Fatal(fmt.Errorf("error opening file: %w", err))
+		logger.Fatal(fmt.Sprintf("error opening file: %s", err))
 	}
 	defer file.Close()
 
@@ -23,9 +28,9 @@ func main() {
 			break
 		}
 		if err != nil {
-			log.Fatal(fmt.Errorf("error reading record: %w", err))
+			logger.Fatal(fmt.Sprintf("error reading record: %s", err))
 		}
 
-		fmt.Println(record)
+		logger.Info("transactions imported", zap.Any("record", record))
 	}
 }
