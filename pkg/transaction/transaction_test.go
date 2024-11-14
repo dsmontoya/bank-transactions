@@ -12,13 +12,13 @@ import (
 	"go.uber.org/zap"
 )
 
-type MockTransactionWriter func(transactions []Transaction) error
+type MockTransactionWriter func(ctx context.Context, transactions []Transaction) error
 
-func (m MockTransactionWriter) Write(transactions []Transaction) error {
+func (m MockTransactionWriter) Write(ctx context.Context, transactions []Transaction) error {
 	if m == nil {
 		panic("unimplemented")
 	}
-	return m(transactions)
+	return m(ctx, transactions)
 }
 
 type MockNotifier func(ctx context.Context, to string, transactions []Transaction) error
@@ -35,7 +35,7 @@ func TestHandle(t *testing.T) {
 		name                  string
 		method                string
 		body                  interface{}
-		transactionWriterFunc func(transactions []Transaction) error
+		transactionWriterFunc func(ctx context.Context, transactions []Transaction) error
 		notifierFunc          func(ctx context.Context, to string, transactions []Transaction) error
 		expectedStatusCode    int
 	}{
@@ -63,7 +63,7 @@ func TestHandle(t *testing.T) {
 					Amount: 100.0,
 				},
 			},
-			transactionWriterFunc: func(transactions []Transaction) error {
+			transactionWriterFunc: func(ctx context.Context, transactions []Transaction) error {
 				return errors.New("write error")
 			},
 			expectedStatusCode: http.StatusInternalServerError,
@@ -78,7 +78,7 @@ func TestHandle(t *testing.T) {
 					Amount: 100.0,
 				},
 			},
-			transactionWriterFunc: func(transactions []Transaction) error {
+			transactionWriterFunc: func(ctx context.Context, transactions []Transaction) error {
 				return nil
 			},
 			notifierFunc: func(ctx context.Context, to string, transactions []Transaction) error {

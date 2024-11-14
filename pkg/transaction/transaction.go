@@ -19,7 +19,7 @@ type Transaction struct {
 type Handler struct {
 	Logger            *zap.Logger
 	TransactionWriter interface {
-		Write(transactions []Transaction) error
+		Write(ctx context.Context, transactions []Transaction) error
 	}
 	Notifier interface {
 		Notify(ctx context.Context, to string, transactions []Transaction) error
@@ -38,7 +38,7 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.TransactionWriter.Write(transactions); err != nil {
+	if err := h.TransactionWriter.Write(r.Context(), transactions); err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
