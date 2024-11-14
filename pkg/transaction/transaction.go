@@ -13,7 +13,7 @@ type Transaction struct {
 
 type Handler struct {
 	TransactionWriter interface {
-		Write(transaction Transaction) error
+		Write(transactions []Transaction) error
 	}
 }
 
@@ -23,13 +23,13 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var transaction Transaction
-	if err := json.NewDecoder(r.Body).Decode(&transaction); err != nil {
+	var transactions []Transaction
+	if err := json.NewDecoder(r.Body).Decode(&transactions); err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
-	if err := h.TransactionWriter.Write(transaction); err != nil {
+	if err := h.TransactionWriter.Write(transactions); err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}

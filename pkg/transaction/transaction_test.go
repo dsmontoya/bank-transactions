@@ -9,13 +9,13 @@ import (
 	"testing"
 )
 
-type MockTransactionWriter func(transaction Transaction) error
+type MockTransactionWriter func(transactions []Transaction) error
 
-func (m MockTransactionWriter) Write(transaction Transaction) error {
+func (m MockTransactionWriter) Write(transactions []Transaction) error {
 	if m == nil {
 		panic("unimplemented")
 	}
-	return m(transaction)
+	return m(transactions)
 }
 
 func TestHandle(t *testing.T) {
@@ -23,7 +23,7 @@ func TestHandle(t *testing.T) {
 		name                  string
 		method                string
 		body                  interface{}
-		transactionWriterFunc func(transaction Transaction) error
+		transactionWriterFunc func(transactions []Transaction) error
 		expectedStatusCode    int
 	}{
 		{
@@ -43,12 +43,14 @@ func TestHandle(t *testing.T) {
 		{
 			name:   "Write error",
 			method: http.MethodPost,
-			body: Transaction{
-				ID:     "1",
-				Date:   "2023-10-01",
-				Amount: 100.0,
+			body: []Transaction{
+				{
+					ID:     "1",
+					Date:   "2023-10-01",
+					Amount: 100.0,
+				},
 			},
-			transactionWriterFunc: func(transaction Transaction) error {
+			transactionWriterFunc: func(transactions []Transaction) error {
 				return errors.New("write error")
 			},
 			expectedStatusCode: http.StatusInternalServerError,
@@ -56,12 +58,14 @@ func TestHandle(t *testing.T) {
 		{
 			name:   "Successful write",
 			method: http.MethodPost,
-			body: Transaction{
-				ID:     "1",
-				Date:   "2023-10-01",
-				Amount: 100.0,
+			body: []Transaction{
+				{
+					ID:     "1",
+					Date:   "2023-10-01",
+					Amount: 100.0,
+				},
 			},
-			transactionWriterFunc: func(transaction Transaction) error {
+			transactionWriterFunc: func(transactions []Transaction) error {
 				return nil
 			},
 			expectedStatusCode: http.StatusCreated,
