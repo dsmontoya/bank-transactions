@@ -1,10 +1,14 @@
 package main
 
 import (
-	"encoding/csv"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
+	"transactions/pkg/importer"
+	"transactions/pkg/transaction"
 
 	"go.uber.org/zap"
 )
@@ -20,17 +24,37 @@ func main() {
 	}
 	defer file.Close()
 
-	r := csv.NewReader(file)
-
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			logger.Fatal(fmt.Sprintf("error reading record: %s", err))
-		}
-
-		logger.Info("transactions imported", zap.Any("record", record))
+	csvImporter := importer.CSVImporter{
+		Logger: logger,
+		Reader: file,
 	}
+	transactions, err := csvImporter.Import()
+	if err != nil {
+		logger.Fatal(fmt.Sprintf("error importing transactions: %s", err))
+	}
+	if err := sendTransactions(transactions); err != nil {
+		logger.Fatal(fmt.Sprintf("error sending transactions: %s", err))
+	}
+
+	logger.Info("transactions imported")
+}
+
+func sendTransactions(transactions []transaction.Transaction) error {
+	jsonData, err := json.Marshal(transactions)
+	if err != nil {
+		return fmt.Errorf("error marshalling transactions: %w", err)
+	}
+
+	resp, err := http.Post("http://transactions:8080/transactions", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("error posting transactions: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("unexpected status code: %d, body: %s", resp.StatusCode, body)
+	}
+
+	return nil
 }
