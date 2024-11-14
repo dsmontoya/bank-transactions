@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,12 +14,19 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	transactionsAddr = flag.String("transactions-addr", "transactions:8080", "Address of the transactions service")
+	csvFile          = flag.String("csv-file", "/assets/transactions.csv", "Path to the CSV file")
+)
+
 func main() {
+	flag.Parse()
+
 	logger, err := zap.NewProduction()
 	if err != nil {
 		panic(err)
 	}
-	file, err := os.Open("/assets/transactions.csv") //TODO: move to a flag
+	file, err := os.Open(*csvFile)
 	if err != nil {
 		logger.Fatal(fmt.Sprintf("error opening file: %s", err))
 	}
@@ -45,7 +53,7 @@ func sendTransactions(transactions []transaction.Transaction) error {
 		return fmt.Errorf("error marshalling transactions: %w", err)
 	}
 
-	resp, err := http.Post("http://transactions:8080/transactions", "application/json", bytes.NewBuffer(jsonData))
+	resp, err := http.Post(fmt.Sprintf("http://%s/transactions", *transactionsAddr), "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return fmt.Errorf("error posting transactions: %w", err)
 	}
