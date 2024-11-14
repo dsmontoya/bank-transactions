@@ -8,6 +8,8 @@ import (
 	"go.uber.org/zap"
 )
 
+const dummyEmail = "test@test.com"
+
 type Transaction struct {
 	ID     string  `json:"id"`
 	Date   string  `json:"date"`
@@ -20,7 +22,7 @@ type Handler struct {
 		Write(transactions []Transaction) error
 	}
 	Notifier interface {
-		Notify(ctx context.Context, transactions []Transaction) error
+		Notify(ctx context.Context, to string, transactions []Transaction) error
 	}
 }
 
@@ -42,7 +44,7 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go func() {
-		if err := h.Notifier.Notify(r.Context(), transactions); err != nil {
+		if err := h.Notifier.Notify(r.Context(), dummyEmail, transactions); err != nil {
 			h.Logger.Error("error notifying", zap.Error(err))
 		}
 	}()

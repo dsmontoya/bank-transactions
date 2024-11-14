@@ -21,13 +21,13 @@ func (m MockTransactionWriter) Write(transactions []Transaction) error {
 	return m(transactions)
 }
 
-type MockNotifier func(ctx context.Context, transactions []Transaction) error
+type MockNotifier func(ctx context.Context, to string, transactions []Transaction) error
 
-func (m MockNotifier) Notify(ctx context.Context, transactions []Transaction) error {
+func (m MockNotifier) Notify(ctx context.Context, to string, transactions []Transaction) error {
 	if m == nil {
 		panic("unimplemented")
 	}
-	return m(ctx, transactions)
+	return m(ctx, to, transactions)
 }
 
 func TestHandle(t *testing.T) {
@@ -36,7 +36,7 @@ func TestHandle(t *testing.T) {
 		method                string
 		body                  interface{}
 		transactionWriterFunc func(transactions []Transaction) error
-		notifierFunc          func(ctx context.Context, transactions []Transaction) error
+		notifierFunc          func(ctx context.Context, to string, transactions []Transaction) error
 		expectedStatusCode    int
 	}{
 		{
@@ -81,7 +81,7 @@ func TestHandle(t *testing.T) {
 			transactionWriterFunc: func(transactions []Transaction) error {
 				return nil
 			},
-			notifierFunc: func(ctx context.Context, transactions []Transaction) error {
+			notifierFunc: func(ctx context.Context, to string, transactions []Transaction) error {
 				return nil
 			},
 			expectedStatusCode: http.StatusCreated,

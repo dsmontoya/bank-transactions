@@ -7,12 +7,16 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	emailSubject = "Transactions Report"
+)
+
 type Notifier struct {
 	Logger *zap.Logger
 	Mailer mail.Mailer
 }
 
-func (n *Notifier) Notify(_ context.Context, transactions []Transaction) error {
+func (n *Notifier) Notify(_ context.Context, to string, transactions []Transaction) error {
 	report := GenerateReport(transactions)
 
 	body, err := report.Format()
@@ -20,7 +24,7 @@ func (n *Notifier) Notify(_ context.Context, transactions []Transaction) error {
 		return err
 	}
 
-	if err := n.Mailer.Send("", "", body); err != nil {
+	if err := n.Mailer.Send(to, emailSubject, body); err != nil {
 		n.Logger.Error("failed to send email", zap.Error(err))
 		return err
 	}
