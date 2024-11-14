@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"go.uber.org/zap"
 )
 
 type MockTransactionWriter func(transactions []Transaction) error
@@ -97,6 +99,7 @@ func TestHandle(t *testing.T) {
 			rec := httptest.NewRecorder()
 
 			handler := &Handler{
+				Logger:            zap.NewNop(),
 				TransactionWriter: MockTransactionWriter(tt.transactionWriterFunc),
 				Notifier:          MockNotifier(tt.notifierFunc),
 			}
