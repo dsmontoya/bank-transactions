@@ -43,11 +43,11 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go func() {
-		if err := h.Notifier.Notify(r.Context(), dummyEmail, transactions); err != nil {
+	go func(ctx context.Context) {
+		if err := h.Notifier.Notify(ctx, dummyEmail, transactions); err != nil {
 			h.Logger.Error("error notifying", zap.Error(err))
 		}
-	}()
+	}(r.Context())
 
 	h.Logger.Info("transactions written", zap.Int("transactions_count", len(transactions)))
 	w.WriteHeader(http.StatusCreated)
