@@ -3,6 +3,8 @@ package transaction
 import (
 	"encoding/json"
 	"net/http"
+
+	"go.uber.org/zap"
 )
 
 type Transaction struct {
@@ -12,6 +14,7 @@ type Transaction struct {
 }
 
 type Handler struct {
+	Logger            *zap.Logger
 	TransactionWriter interface {
 		Write(transactions []Transaction) error
 	}
@@ -34,5 +37,6 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	h.Logger.Info("transactions written", zap.Int("transactions_count", len(transactions)))
 	w.WriteHeader(http.StatusCreated)
 }
