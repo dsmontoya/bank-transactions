@@ -2,6 +2,7 @@ package transaction
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -18,12 +19,22 @@ func (m MockTransactionWriter) Write(transactions []Transaction) error {
 	return m(transactions)
 }
 
+type MockNotifier func(ctx context.Context, transactions []Transaction) error
+
+func (m MockNotifier) Notify(ctx context.Context, transactions []Transaction) error {
+	if m == nil {
+		panic("unimplemented")
+	}
+	return m(ctx, transactions)
+}
+
 func TestHandle(t *testing.T) {
 	tests := []struct {
 		name                  string
 		method                string
 		body                  interface{}
 		transactionWriterFunc func(transactions []Transaction) error
+		notifierFunc          func(ctx context.Context, transactions []Transaction) error
 		expectedStatusCode    int
 	}{
 		{
@@ -68,6 +79,9 @@ func TestHandle(t *testing.T) {
 			transactionWriterFunc: func(transactions []Transaction) error {
 				return nil
 			},
+			notifierFunc: func(ctx context.Context, transactions []Transaction) error {
+				return nil
+			},
 			expectedStatusCode: http.StatusCreated,
 		},
 	}
@@ -84,6 +98,7 @@ func TestHandle(t *testing.T) {
 
 			handler := &Handler{
 				TransactionWriter: MockTransactionWriter(tt.transactionWriterFunc),
+				Notifier:          MockNotifier(tt.notifierFunc),
 			}
 
 			handler.Handle(rec, req)

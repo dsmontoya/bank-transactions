@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
@@ -17,6 +18,9 @@ type Handler struct {
 	Logger            *zap.Logger
 	TransactionWriter interface {
 		Write(transactions []Transaction) error
+	}
+	Notifier interface {
+		Notify(ctx context.Context, transactions []Transaction) error
 	}
 }
 
@@ -37,7 +41,11 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = GenerateReport(transactions)
+	go func() {
+		if err := h.Notifier.Notify(r.Context(), transactions); err != nil {
+			h.Logger.Error("error notifying", zap.Error(err))
+		}
+	}()
 
 	h.Logger.Info("transactions written", zap.Int("transactions_count", len(transactions)))
 	w.WriteHeader(http.StatusCreated)
