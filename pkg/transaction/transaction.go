@@ -37,6 +37,8 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_ = GenerateReport(transactions)
+
 	h.Logger.Info("transactions written", zap.Int("transactions_count", len(transactions)))
 	w.WriteHeader(http.StatusCreated)
 }
