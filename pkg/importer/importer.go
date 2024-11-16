@@ -48,6 +48,7 @@ func (c *CSVImporter) Import() ([]transaction.Transaction, error) {
 			ID:     int64(id),
 			Date:   record[1],
 			Amount: amount,
+			UserID: 1, //we use the same user id just for demo purposes.
 		})
 	}
 

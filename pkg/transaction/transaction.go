@@ -14,6 +14,7 @@ type Transaction struct {
 	ID     int64   `json:"id"`
 	Date   string  `json:"date"`
 	Amount float64 `json:"amount"`
+	UserID int64   `json:"user_id"`
 }
 
 type Handler struct {
