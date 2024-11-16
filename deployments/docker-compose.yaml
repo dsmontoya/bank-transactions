@@ -7,24 +7,20 @@ services:
       dockerfile: build/Dockerfile
       args:
           BUILD_TARGET: importer
-    # depends_on:
-    #   - db
+    depends_on:
+      - transactionsdb
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: txs
+      DATABASE_URL: postgres://postgres:postgres@transactionsdb:5432/txs
   transactions:
     build:
       context: ../
       dockerfile: build/Dockerfile
       args:
           BUILD_TARGET: transactions
-    # depends_on:
-    #   - db
+    depends_on:
+      - transactionsdb
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: txs
+      DATABASE_URL: postgres://postgres:postgres@transactionsdb:5432/txs?sslmode=disable
     ports:
       - "8080:8080"
   transactions-sql-migrations:
@@ -32,7 +28,7 @@ services:
       context: ../
       dockerfile: build/sql-migrations.Dockerfile
     environment:
-      DATABASE_URL: postgres://postgres:postgres@transactionsdb:5432/txs
+      DATABASE_URL: postgres://postgres:postgres@transactionsdb:5432/txs?sslmode=disable
       DATABASE_SCHEMA: transactions
     depends_on:
       - transactionsdb
