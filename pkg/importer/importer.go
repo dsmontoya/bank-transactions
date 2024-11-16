@@ -39,8 +39,13 @@ func (c *CSVImporter) Import() ([]transaction.Transaction, error) {
 			return nil, fmt.Errorf("error parsing amount %s: %w", record[2], err)
 		}
 
+		id, err := strconv.Atoi(record[0])
+		if err != nil {
+			return nil, fmt.Errorf("error parsing transaction id %s: %w", record[0], err)
+		}
+
 		transactions = append(transactions, transaction.Transaction{
-			ID:     record[0],
+			ID:     int64(id),
 			Date:   record[1],
 			Amount: amount,
 		})

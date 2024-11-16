@@ -11,7 +11,7 @@ import (
 const dummyEmail = "test@test.com"
 
 type Transaction struct {
-	ID     string  `json:"id"`
+	ID     int64   `json:"id"`
 	Date   string  `json:"date"`
 	Amount float64 `json:"amount"`
 }
