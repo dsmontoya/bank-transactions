@@ -58,7 +58,7 @@ func TestHandle(t *testing.T) {
 			method: http.MethodPost,
 			body: []Transaction{
 				{
-					ID:     "1",
+					ID:     1,
 					Date:   "2023-10-01",
 					Amount: 100.0,
 				},
@@ -73,7 +73,7 @@ func TestHandle(t *testing.T) {
 			method: http.MethodPost,
 			body: []Transaction{
 				{
-					ID:     "1",
+					ID:     1,
 					Date:   "2023-10-01",
 					Amount: 100.0,
 				},

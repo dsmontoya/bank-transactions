@@ -6,5 +6,6 @@ SELECT
   unnest(sqlc.arg (amounts)::DECIMAL(10, 2) []) AS amount,
   unnest(sqlc.arg (dates)::DATE[]) AS date,
   unnest(sqlc.arg (user_ids)::BIGINT[]) AS user_id
+ON CONFLICT (id) DO NOTHING
 RETURNING
   *;

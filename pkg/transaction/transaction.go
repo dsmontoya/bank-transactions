@@ -40,6 +40,7 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.TransactionWriter.Write(r.Context(), transactions); err != nil {
+		h.Logger.Error("Failed to write transaction", zap.Error(err))
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}

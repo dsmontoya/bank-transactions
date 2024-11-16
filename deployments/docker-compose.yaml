@@ -11,12 +11,13 @@ services:
       - transactionsdb
     environment:
       DATABASE_URL: postgres://postgres:postgres@transactionsdb:5432/txs
-  transactions:
+  transactionsadfffkfkfkdddai:
     build:
       context: ../
       dockerfile: build/Dockerfile
       args:
           BUILD_TARGET: transactions
+    command: /app
     depends_on:
       - transactionsdb
     environment:

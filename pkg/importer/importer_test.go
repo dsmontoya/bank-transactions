@@ -24,8 +24,8 @@ func TestCSVImporter_Import(t *testing.T) {
 2,2024-01-02,-200.75
 `,
 			want: []transaction.Transaction{
-				{ID: 1, Date: "2024-01-01", Amount: 100.50},
-				{ID: 2, Date: "2024-01-02", Amount: -200.75},
+				{ID: 1, Date: "2024-01-01", Amount: 100.50, UserID: 1},
+				{ID: 2, Date: "2024-01-02", Amount: -200.75, UserID: 1},
 			},
 			wantErr: false,
 		},
