@@ -13,7 +13,7 @@ const (
 
 type Notifier struct {
 	Logger *zap.Logger
-	Mailer mail.Mailer
+	Mailer *mail.Mailer
 }
 
 func (n *Notifier) Notify(_ context.Context, to string, transactions []Transaction) error {
