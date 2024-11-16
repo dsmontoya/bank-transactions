@@ -11,7 +11,7 @@ services:
       - transactionsdb
     environment:
       DATABASE_URL: postgres://postgres:postgres@transactionsdb:5432/txs
-  transactionsadfffkfkfkdddai:
+  transactions:
     build:
       context: ../
       dockerfile: build/Dockerfile
